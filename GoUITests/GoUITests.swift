@@ -1,10 +1,3 @@
-//
-//  GoUITests.swift
-//  GoUITests
-//
-//  Created by STEPHEN FITZGERALD on 2025/01/26.
-//
-
 import XCTest
 
 final class GoUITests: XCTestCase {
