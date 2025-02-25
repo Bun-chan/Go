@@ -48,6 +48,10 @@ struct HomeView: View {
                 }
             }
         }
+        .onReceive(homeViewModel.$myLocations) { location in
+            //MARK: to do -> update the map and other UI with the new location.
+            print("VIEW locs: \(location.count)")
+        }
     }
 }
 
