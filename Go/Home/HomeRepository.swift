@@ -6,7 +6,9 @@ protocol HomeRepository {
     func requestWhenInUseAuthorization()
     func observeAuthorizationStatus() -> AnyPublisher<CLAuthorizationStatus, Never>
     func startUpdatingLocation()
-    var locationPublisher: PassthroughSubject<CLLocation, Never> { get }
-    func saveToUserDefaults(location: MyLocation) //MARK: to do -> Replace this with Core Data.
-    func getUserDefaultsLocations() -> [MyLocation] //MARK: to do -> Replace this with Core Data.
+    func updateLocation(_ location: MyLocation)
+    func getUserDefLocs()
+    var locationsPublisher: AnyPublisher<[MyLocation], Never> { get }
+    func deleteLocation(_ location: MyLocation)
+    var locationPublisher: PassthroughSubject<MyLocation, Never> { get } //Used to track the users location and keep the map centered on them.
 }

@@ -1,0 +1,91 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Cancel" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
+        }
+      }
+    },
+    "Delete" : {
+
+    },
+    "Edit Location" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "場所の修正"
+          }
+        }
+      }
+    },
+    "Enter the location's name" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "場所の名前"
+          }
+        }
+      }
+    },
+    "Location Error" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "位置エラー"
+          }
+        }
+      }
+    },
+    "Locations" : {
+
+    },
+    "ok" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オケ"
+          }
+        }
+      }
+    },
+    "OK" : {
+
+    },
+    "retrieved %lld locations" : {
+
+    },
+    "retrieved 0000 locations" : {
+
+    },
+    "Save" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存する"
+          }
+        }
+      }
+    },
+    "Show" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "見せる"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
