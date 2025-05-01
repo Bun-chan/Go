@@ -7,32 +7,35 @@ class HomeViewModel: ObservableObject {
     let useCase: HomeUseCase
     var cancellables = Set<AnyCancellable>()
     @Published var locationError: LocationError?
-    @Published var myLocations = [MyLocation]() //MARK: to do -> implement this using CoreData.
     @Published var myLocation: MyLocation?
+    @Published var myPins: [MyLocation] = []
     
     init(useCase: HomeUseCase) {
         self.useCase = useCase
         useCase.locationPublisher
             .sink { [weak self] location in
                 guard let self else { return }
-//                self.myLocations.append(location)
                 self.myLocation = location
-                print("new loc")
+//                print("VIEWMODEL new loc received")
             }
             .store(in: &cancellables)
         
         useCase.locationsPublisher
             .sink { [weak self] locations in
                 guard let self else { return }
-                self.myLocations = locations
+                self.myPins = locations
+//                print("VM locations count: \(locations.count)")
+                for location in locations {
+//                    print("name \(location.name)")
+                }
             }
             .store(in: &cancellables)
         
         useCase.getCurrentLocation()
     }
     
-    func save() {
-        useCase.save()
+    func save(_ myLocation: MyLocation) {
+        useCase.save(myLocation)
     }
     
     func show() {
@@ -43,11 +46,21 @@ class HomeViewModel: ObservableObject {
         useCase.updateLocation(location)
     }
     
-    func getUserDefLocs() {
-        useCase.getUserDefLocs()
-    }
-    
     func deleteLocation(_ location: MyLocation) {
         useCase.deleteLocation(location)
+    }
+    
+    func addPin(_ location: MyLocation) {
+        useCase.addPin(location)
+            .sink { completion in
+            } receiveValue: { [weak self] location in
+                guard let self else { return }
+                self.myPins.append(location)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func getLocations() {
+        useCase.getUserDefLocs()
     }
 }

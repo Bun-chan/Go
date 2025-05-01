@@ -1,7 +1,18 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Add a pin" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピンを立てる"
+          }
+        }
+      }
+    },
     "Cancel" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -12,9 +23,17 @@
       }
     },
     "Delete" : {
-
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "消す"
+          }
+        }
+      }
     },
     "Edit Location" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -35,6 +54,7 @@
       }
     },
     "Location Error" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -44,10 +64,8 @@
         }
       }
     },
-    "Locations" : {
-
-    },
     "ok" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -56,15 +74,6 @@
           }
         }
       }
-    },
-    "OK" : {
-
-    },
-    "retrieved %lld locations" : {
-
-    },
-    "retrieved 0000 locations" : {
-
     },
     "Save" : {
       "localizations" : {
@@ -77,6 +86,7 @@
       }
     },
     "Show" : {
+      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {

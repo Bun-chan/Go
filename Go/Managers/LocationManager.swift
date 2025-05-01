@@ -30,24 +30,7 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-//        locationManager.stopUpdatingLocation()
         locationPublisher = location
-        
-        
-        
-        /*
-        if let timestamp = locationPublisher?.timestamp {
-            if abs(timestamp.timeIntervalSince(location.timestamp)) > 7 { //User must wait 7 seconds between location events. This should prevent most duplicates.
-                if firstCalled { //Used to stop the double event being saved the first time the user uses the locationManager.
-                    firstCalled = false
-                } else {
-                    locationPublisher = location
-                }
-            }
-        } else {
-            firstCalled = true
-            locationPublisher = location
-        }*/
     }
 }
 

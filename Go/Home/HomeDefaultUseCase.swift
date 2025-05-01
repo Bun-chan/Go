@@ -4,13 +4,14 @@ import CoreLocation
 
 protocol HomeUseCase {
     func requestWhenInUseAuthorization()
-    func save()
+    func save(_ myLocation: MyLocation)
     var locationPublisher: PassthroughSubject<MyLocation, Never> { get }
     func updateLocation(_ location: MyLocation) //When the user changes the location name, description etc.
     func getUserDefLocs()
     var locationsPublisher: AnyPublisher<[MyLocation], Never> { get }
     func deleteLocation(_ location: MyLocation)
     func getCurrentLocation()
+    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, Error>
 }
 class HomeDefaultUseCase: HomeUseCase {
     var locationPublisher = PassthroughSubject<MyLocation, Never>()
@@ -28,13 +29,14 @@ class HomeDefaultUseCase: HomeUseCase {
             .sink { completion in
             } receiveValue: { value in
                 self.myLocationsForReal = value
+//                print("UC locations count: \(value.count)")
             }
             .store(in: &cancellables)
         
         homerepository.locationPublisher
             .sink { [weak self] myLocation in
                 guard let self else { return }
-                print("got my Loc+ \(myLocation)")
+//                print("USECASE received location")
                 self.locationPublisher.send(myLocation)
             }
             .store(in: &cancellables)
@@ -49,8 +51,8 @@ class HomeDefaultUseCase: HomeUseCase {
         observeAuthorizationStatus()
     }
     
-    func save() {
-        observeAuthorizationStatus()
+    func save(_ myLocation: MyLocation) {
+        homerepository.saveLocation(myLocation)
     }
     
     private func observeAuthorizationStatus() {
@@ -59,17 +61,19 @@ class HomeDefaultUseCase: HomeUseCase {
                 guard let self = self else { return }
                 switch status {
                 case .authorizedAlways, .authorizedWhenInUse:
-                    print("000 - Starting location updates.")
+//                    print("000 - Starting location updates.")
                     self.startGettingLocation() // Start location updates
                 case .denied, .restricted:
-                    print("111 - Permission denied or restricted.")
+//                    print("111 - Permission denied or restricted.")
                     // Handle denial (e.g., show alert to the user)
+                    break
                 case .notDetermined:
-                    print("222 - Requesting permission.")
+//                    print("222 - Requesting permission.")
                     self.homerepository.requestWhenInUseAuthorization() // Request permission
                 @unknown default:
-                    print("333 Unknown authorization status.")
+//                    print("333 Unknown authorization status.")
                     // Handle unknown case (e.g., request permission)
+                    break
                 }
             }
             .store(in: &cancellables)
@@ -89,6 +93,10 @@ class HomeDefaultUseCase: HomeUseCase {
     
     func deleteLocation(_ location: MyLocation) {
         homerepository.deleteLocation(location)
+    }
+    
+    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, Error> {
+        return homerepository.addPin(location)
     }
 }
 

@@ -32,6 +32,7 @@
 		3790163C2D460EF900006886 /* GoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		379016462D460EF900006886 /* GoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		379F9A402D740B770033531D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		37C9606F2DBC969900D4F020 /* hatsunegaoka2.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = hatsunegaoka2.gpx; path = ../../../../../Desktop/hatsunegaoka2.gpx; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,6 +81,7 @@
 		379016232D460EF700006886 = {
 			isa = PBXGroup;
 			children = (
+				37C9606F2DBC969900D4F020 /* hatsunegaoka2.gpx */,
 				379F9A402D740B770033531D /* Localizable.xcstrings */,
 				3790162E2D460EF700006886 /* Go */,
 				3790163F2D460EF900006886 /* GoTests */,

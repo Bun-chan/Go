@@ -1,7 +1,7 @@
 import Foundation
 import CoreLocation
 
-struct MyLocation: Identifiable, Codable {
+struct MyLocation: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
     var description: String?

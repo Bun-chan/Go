@@ -18,6 +18,7 @@ class HomeDefaultRepository: HomeRepository {
             .sink { [weak self] location in
                 guard let self, let location else { return }
                 let myLocation = MyLocation.locationToMyLocation(location)
+//                print("REPO got location")
                 self.locationPublisher.send(myLocation)
 //                self.saveLocation(myLocation)
 //                self.getUserDefLocs()
@@ -42,16 +43,17 @@ class HomeDefaultRepository: HomeRepository {
         if let data = UserDefaults.standard.data(forKey: locationKey),
            let retrievedLocations = try? JSONDecoder().decode([MyLocation].self, from: data) {
             locations = retrievedLocations
+//            print("returning \(locations.count) locations")
             //            myLocationsForReal.append(contentsOf: LocationTestData.locations) //Use this after deleting the app to re-add the test locations
             //            saveLocations(myLocationsForReal) //this too
         } else {
-            print("getting locations failed...oops")
+//            print("getUserDefLocs failed...oops")
         }
     }
  
-    func saveLocation(_ location: MyLocation) {
+    func saveLocation(_ myLocation: MyLocation) {
         getUserDefLocs()
-        locations.append(location)
+        locations.append(myLocation)
         saveLocations(locations)
     }
     
@@ -59,7 +61,7 @@ class HomeDefaultRepository: HomeRepository {
         if let encoded = try? JSONEncoder().encode(locations) {
             UserDefaults.standard.set(encoded, forKey: locationKey)
         } else {
-            print("saving failed")
+//            print("saving failed")
         }
     }
     
@@ -78,5 +80,16 @@ class HomeDefaultRepository: HomeRepository {
             locations.remove(at: index)
         }
         saveLocations(locations)
+    }
+    
+    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, any Error> { //MARK to do: set up the correct error type and error handling.
+        //MARK to do: save the location to UserDefaults and then return the location so the pin is added to the map.
+        //Save
+        saveLocation(location)
+        
+        //return the location
+        return Just(location)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
     }
 }
