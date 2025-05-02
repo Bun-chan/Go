@@ -20,7 +20,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        print("auth: \(manager.authorizationStatus)")
         authorizationStatus = manager.authorizationStatus
     }
     

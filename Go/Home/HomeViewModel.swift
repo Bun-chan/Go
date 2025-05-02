@@ -16,7 +16,6 @@ class HomeViewModel: ObservableObject {
             .sink { [weak self] location in
                 guard let self else { return }
                 self.myLocation = location
-//                print("VIEWMODEL new loc received")
             }
             .store(in: &cancellables)
         
@@ -24,9 +23,7 @@ class HomeViewModel: ObservableObject {
             .sink { [weak self] locations in
                 guard let self else { return }
                 self.myPins = locations
-//                print("VM locations count: \(locations.count)")
                 for location in locations {
-//                    print("name \(location.name)")
                 }
             }
             .store(in: &cancellables)

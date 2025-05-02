@@ -18,10 +18,7 @@ class HomeDefaultRepository: HomeRepository {
             .sink { [weak self] location in
                 guard let self, let location else { return }
                 let myLocation = MyLocation.locationToMyLocation(location)
-//                print("REPO got location")
                 self.locationPublisher.send(myLocation)
-//                self.saveLocation(myLocation)
-//                self.getUserDefLocs()
             }
             .store(in: &cancellables)
     }
@@ -43,11 +40,8 @@ class HomeDefaultRepository: HomeRepository {
         if let data = UserDefaults.standard.data(forKey: locationKey),
            let retrievedLocations = try? JSONDecoder().decode([MyLocation].self, from: data) {
             locations = retrievedLocations
-//            print("returning \(locations.count) locations")
-            //            myLocationsForReal.append(contentsOf: LocationTestData.locations) //Use this after deleting the app to re-add the test locations
-            //            saveLocations(myLocationsForReal) //this too
         } else {
-//            print("getUserDefLocs failed...oops")
+            //MARK: to do: handle the error
         }
     }
  
@@ -61,7 +55,7 @@ class HomeDefaultRepository: HomeRepository {
         if let encoded = try? JSONEncoder().encode(locations) {
             UserDefaults.standard.set(encoded, forKey: locationKey)
         } else {
-//            print("saving failed")
+            //MARK: to do: handle the error
         }
     }
     

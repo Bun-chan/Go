@@ -29,14 +29,12 @@ class HomeDefaultUseCase: HomeUseCase {
             .sink { completion in
             } receiveValue: { value in
                 self.myLocationsForReal = value
-//                print("UC locations count: \(value.count)")
             }
             .store(in: &cancellables)
         
         homerepository.locationPublisher
             .sink { [weak self] myLocation in
                 guard let self else { return }
-//                print("USECASE received location")
                 self.locationPublisher.send(myLocation)
             }
             .store(in: &cancellables)
@@ -61,18 +59,14 @@ class HomeDefaultUseCase: HomeUseCase {
                 guard let self = self else { return }
                 switch status {
                 case .authorizedAlways, .authorizedWhenInUse:
-//                    print("000 - Starting location updates.")
                     self.startGettingLocation() // Start location updates
                 case .denied, .restricted:
-//                    print("111 - Permission denied or restricted.")
-                    // Handle denial (e.g., show alert to the user)
+                    //MARK: to do: handle the status case
                     break
                 case .notDetermined:
-//                    print("222 - Requesting permission.")
                     self.homerepository.requestWhenInUseAuthorization() // Request permission
                 @unknown default:
-//                    print("333 Unknown authorization status.")
-                    // Handle unknown case (e.g., request permission)
+                    //MARK: to do: handle the unknown case
                     break
                 }
             }
