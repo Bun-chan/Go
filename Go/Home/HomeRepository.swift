@@ -12,5 +12,5 @@ protocol HomeRepository {
     func deleteLocation(_ location: MyLocation)
     var locationPublisher: PassthroughSubject<MyLocation, Never> { get } //Used to track the users location and keep the map centered on them.
     func saveLocation(_ myLocation: MyLocation)
-    func addPin(_ location: MyLocation)-> AnyPublisher<MyLocation, Error>
+    func addPin(_ location: MyLocation)-> AnyPublisher<MyLocation, AddPinError>
 }

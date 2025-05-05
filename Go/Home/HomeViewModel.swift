@@ -9,6 +9,7 @@ class HomeViewModel: ObservableObject {
     @Published var locationError: LocationError?
     @Published var myLocation: MyLocation?
     @Published var myPins: [MyLocation] = []
+    @Published var addPinError: AddPinError?
     
     init(useCase: HomeUseCase) {
         self.useCase = useCase
@@ -35,21 +36,24 @@ class HomeViewModel: ObservableObject {
         useCase.save(myLocation)
     }
     
-    func show() {
-        
+    func updateLocation(_ myLocation: MyLocation) {
+        useCase.updateLocation(myLocation)
     }
     
-    func updateLocation(_ location: MyLocation) {
-        useCase.updateLocation(location)
+    func deleteLocation(_ myLocation: MyLocation) {
+        useCase.deleteLocation(myLocation)
     }
     
-    func deleteLocation(_ location: MyLocation) {
-        useCase.deleteLocation(location)
-    }
-    
-    func addPin(_ location: MyLocation) {
-        useCase.addPin(location)
-            .sink { completion in
+    func addPin(_ myLocation: MyLocation) {
+        useCase.addPin(myLocation)
+            .sink { [weak self] completion in
+                guard let self else { return }
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let addPinError):
+                    self.addPinError = addPinError
+                }
             } receiveValue: { [weak self] location in
                 guard let self else { return }
                 self.myPins.append(location)

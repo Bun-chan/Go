@@ -11,7 +11,7 @@ protocol HomeUseCase {
     var locationsPublisher: AnyPublisher<[MyLocation], Never> { get }
     func deleteLocation(_ location: MyLocation)
     func getCurrentLocation()
-    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, Error>
+    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, AddPinError>
 }
 class HomeDefaultUseCase: HomeUseCase {
     var locationPublisher = PassthroughSubject<MyLocation, Never>()
@@ -89,11 +89,15 @@ class HomeDefaultUseCase: HomeUseCase {
         homerepository.deleteLocation(location)
     }
     
-    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, Error> {
+    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, AddPinError> {
         return homerepository.addPin(location)
     }
 }
 
 enum LocationError: Error {
     case couldNotGetLocation
+}
+
+enum AddPinError: Error {
+    case couldNotAddPin
 }

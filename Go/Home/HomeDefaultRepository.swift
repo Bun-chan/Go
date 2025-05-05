@@ -76,14 +76,14 @@ class HomeDefaultRepository: HomeRepository {
         saveLocations(locations)
     }
     
-    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, any Error> { //MARK to do: set up the correct error type and error handling.
+    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, AddPinError> { //MARK to do: set up the correct error type and error handling.
         //MARK to do: save the location to UserDefaults and then return the location so the pin is added to the map.
         //Save
         saveLocation(location)
         
         //return the location
         return Just(location)
-            .setFailureType(to: Error.self)
+            .setFailureType(to: AddPinError.self)
             .eraseToAnyPublisher()
     }
 }
