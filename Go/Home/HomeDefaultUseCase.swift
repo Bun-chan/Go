@@ -15,7 +15,6 @@ class HomeDefaultUseCase: HomeUseCase {
     var locationPublisher = PassthroughSubject<CLLocation, Never>()
     var homerepository: HomeRepository
     var cancellables = Set<AnyCancellable>()
-    @Published private var myLocationsForReal: [MyLocation] = []
     var locationsPublisherCoreData = PassthroughSubject<[LocModel], Never>()
 
     init(homerepository: HomeRepository) {
