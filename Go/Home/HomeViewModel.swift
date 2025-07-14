@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 
 import Combine
 
@@ -7,56 +8,51 @@ class HomeViewModel: ObservableObject {
     let useCase: HomeUseCase
     var cancellables = Set<AnyCancellable>()
     @Published var locationError: LocationError?
-    @Published var myLocation: MyLocation?
-    @Published var myPins: [MyLocation] = []
+    @Published var location: CLLocation?
+    @Published var myPins2: [CLLocation] = []
     @Published var addPinError: AddPinError?
+    @Published var myPinsCoreData: [LocModel] = []
     
     init(useCase: HomeUseCase) {
         self.useCase = useCase
+        
         useCase.locationPublisher
             .sink { [weak self] location in
-                guard let self else { return }
-                self.myLocation = location
+                self?.location = location
             }
             .store(in: &cancellables)
         
-        useCase.locationsPublisher
-            .sink { [weak self] locations in
-                guard let self else { return }
-                self.myPins = locations
-                for location in locations {
-                }
+        useCase.locationsPublisherCoreData
+            .sink { [weak self] completion in
+                print("VM completion \(completion)")
+            } receiveValue: { [weak self] value in
+                print("VM value \(value)")
+                self?.myPinsCoreData = value
             }
             .store(in: &cancellables)
         
         useCase.getCurrentLocation()
     }
     
-    func save(_ myLocation: MyLocation) {
-        useCase.save(myLocation)
-    }
-    
-    func updateLocation(_ myLocation: MyLocation) {
-        useCase.updateLocation(myLocation)
-    }
-    
-    func deleteLocation(_ myLocation: MyLocation) {
-        useCase.deleteLocation(myLocation)
-    }
-    
-    func addPin(_ myLocation: MyLocation) {
-        useCase.addPin(myLocation)
+    func deleteLocationCoreData(_ location: LocModel) { //maybe this needs to handle a failure case. and then update the map when successfully deleting a pin
+        useCase.deleteLocationCoreData(location)
             .sink { [weak self] completion in
-                guard let self else { return }
-                switch completion {
-                case .finished:
-                    break
-                case .failure(let addPinError):
-                    self.addPinError = addPinError
-                }
-            } receiveValue: { [weak self] location in
-                guard let self else { return }
-                self.myPins.append(location)
+                print("delete completion \(completion)") //deletion failed... handle it
+            } receiveValue: { [weak self] value in
+                print("delete value \(value)") //deletion was successful
+            }
+            .store(in: &cancellables)
+        getLocations() //refresh the locations on the map
+    }
+    
+    func addPin(_ location: CLLocation) {
+        useCase.addPin(location)
+            .sink { [weak self] completion in //handle the error when adding a pin fails.
+                print("add pin completion \(completion)")
+            } receiveValue: { [weak self] value in //void means successful
+                print("add pin location \(value)")
+                self?.myPins2.append(location)
+                self?.getLocations()
             }
             .store(in: &cancellables)
     }
