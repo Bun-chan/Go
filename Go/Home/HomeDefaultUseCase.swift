@@ -4,44 +4,39 @@ import CoreLocation
 
 protocol HomeUseCase {
     func requestWhenInUseAuthorization()
-    func save(_ myLocation: MyLocation)
-    var locationPublisher: PassthroughSubject<MyLocation, Never> { get }
-    func updateLocation(_ location: MyLocation) //When the user changes the location name, description etc.
+    var locationPublisher: PassthroughSubject<CLLocation, Never> { get }
     func getUserDefLocs()
-    var locationsPublisher: AnyPublisher<[MyLocation], Never> { get }
-    func deleteLocation(_ location: MyLocation)
+    func deleteLocationCoreData(_ location: LocModel) -> AnyPublisher<Void, Error>
     func getCurrentLocation()
-    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, Error>
+    func addPin(_ location: CLLocation) -> AnyPublisher<Void, Error>
+    var locationsPublisherCoreData: PassthroughSubject<[LocModel], Never> { get }
+    func updateLocation() -> AnyPublisher<Void, Error>
 }
 class HomeDefaultUseCase: HomeUseCase {
-    var locationPublisher = PassthroughSubject<MyLocation, Never>()
-    var homerepository: HomeRepository
+    var locationPublisher = PassthroughSubject<CLLocation, Never>()
+    var homeRepository: HomeRepository
     var cancellables = Set<AnyCancellable>()
-    @Published private var myLocationsForReal: [MyLocation] = []
-    var locationsPublisher: AnyPublisher<[MyLocation], Never> {
-        $myLocationsForReal.eraseToAnyPublisher()
-    }
-    
-    init(homerepository: HomeRepository) {
-        self.homerepository = homerepository
+    var locationsPublisherCoreData = PassthroughSubject<[LocModel], Never>()
+
+    init(homeRepository: HomeRepository) {
+        self.homeRepository = homeRepository
         
-        homerepository.locationsPublisher
+        homeRepository.locationsPublisherCoreData
             .sink { completion in
-            } receiveValue: { value in
-                self.myLocationsForReal = value
+            } receiveValue: { [weak self] value in
+                self?.locationsPublisherCoreData.send(value)
             }
             .store(in: &cancellables)
         
-        homerepository.locationPublisher
-            .sink { [weak self] myLocation in
-                guard let self else { return }
-                self.locationPublisher.send(myLocation)
+        homeRepository.locationPublisher
+            .sink { [weak self] location in
+                self?.locationPublisher.send(location)
             }
             .store(in: &cancellables)
     }
     
     func requestWhenInUseAuthorization() {
-        homerepository.requestWhenInUseAuthorization()
+        homeRepository.requestWhenInUseAuthorization()
     }
     
     //Need to track the user's location to show it on the map.
@@ -49,12 +44,8 @@ class HomeDefaultUseCase: HomeUseCase {
         observeAuthorizationStatus()
     }
     
-    func save(_ myLocation: MyLocation) {
-        homerepository.saveLocation(myLocation)
-    }
-    
     private func observeAuthorizationStatus() {
-        homerepository.observeAuthorizationStatus()
+        homeRepository.observeAuthorizationStatus()
             .sink { [weak self] status in
                 guard let self = self else { return }
                 switch status {
@@ -64,7 +55,7 @@ class HomeDefaultUseCase: HomeUseCase {
                     //MARK: to do: handle the status case
                     break
                 case .notDetermined:
-                    self.homerepository.requestWhenInUseAuthorization() // Request permission
+                    self.homeRepository.requestWhenInUseAuthorization() // Request permission
                 @unknown default:
                     //MARK: to do: handle the unknown case
                     break
@@ -74,26 +65,30 @@ class HomeDefaultUseCase: HomeUseCase {
     }
     
     private func startGettingLocation() {
-        homerepository.startUpdatingLocation()
-    }
-    
-    func updateLocation(_ location: MyLocation) {
-        homerepository.updateLocation(location)
+        homeRepository.startUpdatingLocation()
     }
     
     func getUserDefLocs() {
-        homerepository.getUserDefLocs()
+        homeRepository.getUserDefLocs()
     }
     
-    func deleteLocation(_ location: MyLocation) {
-        homerepository.deleteLocation(location)
+    func deleteLocationCoreData(_ location: LocModel) -> AnyPublisher<Void, Error> {
+        return homeRepository.deleteLocationCoreData(location)
     }
     
-    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, Error> {
-        return homerepository.addPin(location)
+    func addPin(_ location: CLLocation) -> AnyPublisher<Void, Error> {
+        return homeRepository.addPinCoreData(location)
+    }
+    
+    func updateLocation() -> AnyPublisher<Void, Error> {
+        return homeRepository.updateLocation()
     }
 }
 
 enum LocationError: Error {
     case couldNotGetLocation
+}
+
+enum AddPinError: Error {
+    case couldNotAddPin
 }

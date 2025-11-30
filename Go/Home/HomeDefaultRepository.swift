@@ -3,22 +3,22 @@ import CoreLocation
 
 class HomeDefaultRepository: HomeRepository {
     
-    var locationPublisher = PassthroughSubject<MyLocation, Never>()
     let locationManager: LocationManager
     var cancellables = Set<AnyCancellable>()
-    private let locationKey = "location"
-    @Published private var locations: [MyLocation] = []
-    var locationsPublisher: AnyPublisher<[MyLocation], Never> {
-        $locations.eraseToAnyPublisher()
+    var locationPublisher = PassthroughSubject<CLLocation, Never>()
+    @Published private var locationsCoreData: [LocModel] = []
+    var locationsPublisherCoreData: AnyPublisher<[LocModel], Never> {
+        $locationsCoreData.eraseToAnyPublisher()
     }
+    private let coreDataDataSource: CoreDataProtocol
     
-    init(locationManager: LocationManager = LocationManager()) {
+    init(locationManager: LocationManager = LocationManager(), coreDataDataSource: CoreDataDataSource) {
         self.locationManager = locationManager
+        self.coreDataDataSource = coreDataDataSource
         locationManager.$locationPublisher
             .sink { [weak self] location in
                 guard let self, let location else { return }
-                let myLocation = MyLocation.locationToMyLocation(location)
-                self.locationPublisher.send(myLocation)
+                self.locationPublisher.send(location)
             }
             .store(in: &cancellables)
     }
@@ -37,53 +37,34 @@ class HomeDefaultRepository: HomeRepository {
     }
     
     func getUserDefLocs() {
-        if let data = UserDefaults.standard.data(forKey: locationKey),
-           let retrievedLocations = try? JSONDecoder().decode([MyLocation].self, from: data) {
-            locations = retrievedLocations
-        } else {
-            //MARK: to do: handle the error
-        }
-    }
- 
-    func saveLocation(_ myLocation: MyLocation) {
-        getUserDefLocs()
-        locations.append(myLocation)
-        saveLocations(locations)
-    }
-    
-    private func saveLocations(_ locations: [MyLocation]) {
-        if let encoded = try? JSONEncoder().encode(locations) {
-            UserDefaults.standard.set(encoded, forKey: locationKey)
-        } else {
-            //MARK: to do: handle the error
-        }
+        coreDataDataSource.fetchLocations()
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("core data fetch locations error \(error)") //MARK: handle this.
+                }
+            } receiveValue: { [weak self] locModels in
+                self?.locationsCoreData = locModels
+            }
+            .store(in: &cancellables)
     }
     
-    //This is when the user changes the name, description etc on an existing MyLocation instance.
-    func updateLocation(_ location: MyLocation) {
-        getUserDefLocs()
-        if let index = locations.firstIndex(where: { $0.id == location.id }) {
-            locations[index] = location
-        }
-        saveLocations(locations)
+    func saveLocationCoreData(_ location: CLLocation) -> AnyPublisher<Void, Error> {
+        return coreDataDataSource.saveLocation(name: "", latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, notes: nil)
     }
     
-    func deleteLocation(_ location: MyLocation) {
-        getUserDefLocs()
-        if let index = locations.firstIndex(where: { $0.id == location.id }) {
-            locations.remove(at: index)
-        }
-        saveLocations(locations)
+    func deleteLocationCoreData(_ location: LocModel) -> AnyPublisher<Void, Error> {
+        return coreDataDataSource.delete(location)
     }
     
-    func addPin(_ location: MyLocation) -> AnyPublisher<MyLocation, any Error> { //MARK to do: set up the correct error type and error handling.
-        //MARK to do: save the location to UserDefaults and then return the location so the pin is added to the map.
-        //Save
-        saveLocation(location)
-        
-        //return the location
-        return Just(location)
-            .setFailureType(to: Error.self)
-            .eraseToAnyPublisher()
+    func addPinCoreData(_ location: CLLocation) -> AnyPublisher<Void, Error> {
+        return saveLocationCoreData(location)
+    }
+    
+    func updateLocation() -> AnyPublisher<Void, Error> {
+        return coreDataDataSource.save()
     }
 }
