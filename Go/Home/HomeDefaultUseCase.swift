@@ -10,24 +10,25 @@ protocol HomeUseCase {
     func getCurrentLocation()
     func addPin(_ location: CLLocation) -> AnyPublisher<Void, Error>
     var locationsPublisherCoreData: PassthroughSubject<[LocModel], Never> { get }
+    func updateLocation() -> AnyPublisher<Void, Error>
 }
 class HomeDefaultUseCase: HomeUseCase {
     var locationPublisher = PassthroughSubject<CLLocation, Never>()
-    var homerepository: HomeRepository
+    var homeRepository: HomeRepository
     var cancellables = Set<AnyCancellable>()
     var locationsPublisherCoreData = PassthroughSubject<[LocModel], Never>()
 
-    init(homerepository: HomeRepository) {
-        self.homerepository = homerepository
+    init(homeRepository: HomeRepository) {
+        self.homeRepository = homeRepository
         
-        homerepository.locationsPublisherCoreData
+        homeRepository.locationsPublisherCoreData
             .sink { completion in
             } receiveValue: { [weak self] value in
                 self?.locationsPublisherCoreData.send(value)
             }
             .store(in: &cancellables)
         
-        homerepository.locationPublisher
+        homeRepository.locationPublisher
             .sink { [weak self] location in
                 self?.locationPublisher.send(location)
             }
@@ -35,7 +36,7 @@ class HomeDefaultUseCase: HomeUseCase {
     }
     
     func requestWhenInUseAuthorization() {
-        homerepository.requestWhenInUseAuthorization()
+        homeRepository.requestWhenInUseAuthorization()
     }
     
     //Need to track the user's location to show it on the map.
@@ -44,7 +45,7 @@ class HomeDefaultUseCase: HomeUseCase {
     }
     
     private func observeAuthorizationStatus() {
-        homerepository.observeAuthorizationStatus()
+        homeRepository.observeAuthorizationStatus()
             .sink { [weak self] status in
                 guard let self = self else { return }
                 switch status {
@@ -54,7 +55,7 @@ class HomeDefaultUseCase: HomeUseCase {
                     //MARK: to do: handle the status case
                     break
                 case .notDetermined:
-                    self.homerepository.requestWhenInUseAuthorization() // Request permission
+                    self.homeRepository.requestWhenInUseAuthorization() // Request permission
                 @unknown default:
                     //MARK: to do: handle the unknown case
                     break
@@ -64,19 +65,23 @@ class HomeDefaultUseCase: HomeUseCase {
     }
     
     private func startGettingLocation() {
-        homerepository.startUpdatingLocation()
+        homeRepository.startUpdatingLocation()
     }
     
     func getUserDefLocs() {
-        homerepository.getUserDefLocs()
+        homeRepository.getUserDefLocs()
     }
     
     func deleteLocationCoreData(_ location: LocModel) -> AnyPublisher<Void, Error> {
-        return homerepository.deleteLocationCoreData(location)
+        return homeRepository.deleteLocationCoreData(location)
     }
     
     func addPin(_ location: CLLocation) -> AnyPublisher<Void, Error> {
-        return homerepository.addPinCoreData(location)
+        return homeRepository.addPinCoreData(location)
+    }
+    
+    func updateLocation() -> AnyPublisher<Void, Error> {
+        return homeRepository.updateLocation()
     }
 }
 

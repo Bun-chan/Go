@@ -10,7 +10,7 @@ class HomeDefaultRepository: HomeRepository {
     var locationsPublisherCoreData: AnyPublisher<[LocModel], Never> {
         $locationsCoreData.eraseToAnyPublisher()
     }
-    private let coreDataDataSource: CoreDataDataSource
+    private let coreDataDataSource: CoreDataProtocol
     
     init(locationManager: LocationManager = LocationManager(), coreDataDataSource: CoreDataDataSource) {
         self.locationManager = locationManager
@@ -37,20 +37,34 @@ class HomeDefaultRepository: HomeRepository {
     }
     
     func getUserDefLocs() {
-        locationsCoreData = coreDataDataSource.fetchLocations()
+        coreDataDataSource.fetchLocations()
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure(let error):
+                    print("core data fetch locations error \(error)") //MARK: handle this.
+                }
+            } receiveValue: { [weak self] locModels in
+                self?.locationsCoreData = locModels
+            }
+            .store(in: &cancellables)
     }
     
     func saveLocationCoreData(_ location: CLLocation) -> AnyPublisher<Void, Error> {
-        return coreDataDataSource.saveLocation(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, notes: nil)
+        return coreDataDataSource.saveLocation(name: "", latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, notes: nil)
     }
     
     func deleteLocationCoreData(_ location: LocModel) -> AnyPublisher<Void, Error> {
-        let context = coreDataDataSource.context
-        context.delete(location)
-        return coreDataDataSource.save()
+        return coreDataDataSource.delete(location)
     }
     
     func addPinCoreData(_ location: CLLocation) -> AnyPublisher<Void, Error> {
         return saveLocationCoreData(location)
+    }
+    
+    func updateLocation() -> AnyPublisher<Void, Error> {
+        return coreDataDataSource.save()
     }
 }

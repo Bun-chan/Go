@@ -12,4 +12,5 @@ protocol HomeRepository {
     var locationPublisher: PassthroughSubject<CLLocation, Never> { get }
     func saveLocationCoreData(_ location: CLLocation) -> AnyPublisher<Void, Error>
     func addPinCoreData(_ location: CLLocation)-> AnyPublisher<Void, Error>
+    func updateLocation() -> AnyPublisher<Void, Error>
 }

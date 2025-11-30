@@ -12,6 +12,7 @@ class HomeViewModel: ObservableObject {
     @Published var myPins2: [CLLocation] = []
     @Published var addPinError: AddPinError?
     @Published var myPinsCoreData: [LocModel] = []
+    @Published var alertMessage: AlertItem? = nil
     
     init(useCase: HomeUseCase) {
         self.useCase = useCase
@@ -47,8 +48,13 @@ class HomeViewModel: ObservableObject {
     
     func addPin(_ location: CLLocation) {
         useCase.addPin(location)
-            .sink { [weak self] completion in //handle the error when adding a pin fails.
-                print("add pin completion \(completion)")
+            .sink { [weak self] completion in
+                switch completion {
+                case .failure(let error):
+                    self?.alertMessage = AlertItem(message: error.localizedDescription)
+                case .finished:
+                    break
+                }
             } receiveValue: { [weak self] value in //void means successful
                 print("add pin location \(value)")
                 self?.myPins2.append(location)
@@ -60,4 +66,21 @@ class HomeViewModel: ObservableObject {
     func getLocations() {
         useCase.getUserDefLocs()
     }
+    
+    func updateLocation() {
+        useCase.updateLocation()
+            .sink { completion in
+                print("update completion \(completion)") //Handle the error.
+            } receiveValue: { [weak self] _ in
+                print("update location successful")
+                self?.getLocations()
+            }
+            .store(in: &cancellables)
+    }
+}
+
+
+struct AlertItem: Identifiable {
+    let id = UUID()
+    let message: String
 }
