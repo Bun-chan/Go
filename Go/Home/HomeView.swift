@@ -57,6 +57,7 @@ struct HomeView: View {
                         selectedItemCoreData = nil
                     }
                 )
+                .presentationBackground(Color.blue)
             }
             .alert(item: $homeViewModel.alertMessage) { message in
                 Alert(
